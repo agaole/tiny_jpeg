@@ -450,7 +450,7 @@ typedef struct
 typedef struct
 {
     uint8_t component_id;                 // Just as with TJEComponentSpec
-    uint8_t dc_ac;                        // (dc|ac)
+    uint8_t dc_ac;                        // (dc|ac)直流/交流系数表ID，1个字节，高4位表示直流分量的Huffman表的ID；低4位表示交流分量的Huffman表的ID；
 } TJEFrameComponentSpec;
 
 typedef struct
@@ -560,14 +560,14 @@ static uint16_t* tjei_huff_get_codes(uint16_t codes[], uint8_t* huffsize, int64_
         do {
             assert(k < count);
             codes[k++] = code++;
-        } while (huffsize[k] == sz);
+        } while (huffsize[k] == sz);//(相同的code长度，code是递增的)
         if (huffsize[k] == 0) {
             return codes;
         }
         do {
             code = (uint16_t)(code << 1);
             ++sz;
-        } while( huffsize[k] != sz );
+        } while( huffsize[k] != sz );//code左移补零到指定的编码长度
     }
 }
 
@@ -1030,7 +1030,7 @@ static int tjei_encode_main(TJEState* state,
         for (int i = 0; i < 3; ++i) {
             TJEComponentSpec spec;
             spec.component_id = (uint8_t)(i + 1);  // No particular reason. Just 1, 2, 3.
-            spec.sampling_factors = (uint8_t)0x11;
+            spec.sampling_factors = (uint8_t)0x11;//水平和垂直都是1个像素采样1个
             spec.qt = tables[i];
 
             header.component_spec[i] = spec;
